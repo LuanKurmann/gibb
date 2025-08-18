@@ -1,0 +1,38 @@
+{
+  "app": {
+    "title": "Auth App",
+    "welcome": "Welcome"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "username": "Username",
+    "confirmPassword": "Confirm Password",
+    "loginButton": "Sign In",
+    "registerButton": "Sign Up",
+    "alreadyHaveAccount": "Already have an account?",
+    "dontHaveAccount": "Don't have an account?",
+    "loginSuccess": "Login successful",
+    "registerSuccess": "Registration successful",
+    "loginError": "Login failed",
+    "registerError": "Registration failed",
+    "invalidEmail": "Please enter a valid email",
+    "passwordRequired": "Password is required",
+    "passwordsNotMatch": "Passwords do not match",
+    "usernameRequired": "Username is required"
+  },
+  "settings": {
+    "title": "Settings",
+    "userInfo": "User Information",
+    "logout": "Logout",
+    "profile": "Profile",
+    "language": "Language",
+    "logoutConfirm": "Are you sure you want to logout?"
+  },
+  "navigation": {
+    "home": "Home",
+    "settings": "Settings"
+  }
+}

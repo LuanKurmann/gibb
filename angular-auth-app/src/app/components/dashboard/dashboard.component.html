@@ -1,0 +1,39 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Navigation -->
+  <nav class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <h1 class="text-xl font-semibold text-gray-900">{{ i18n.t('app.title') }}</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+          <span class="text-sm text-gray-700">{{ i18n.t('app.welcome') }}, {{ user?.username || user?.email }}</span>
+          <a routerLink="/settings" class="text-primary-600 hover:text-primary-500 text-sm font-medium">
+            {{ i18n.t('settings.title') }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <div class="border-4 border-dashed border-gray-200 rounded-lg p-8">
+        <div class="text-center">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ i18n.t('app.welcome') }}</h2>
+          <p class="text-gray-600 mb-6">{{ i18n.t('app.title') }}</p>
+          
+          <div class="bg-white rounded-lg shadow p-6 max-w-md mx-auto">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ i18n.t('settings.userInfo') }}</h3>
+            <div class="space-y-2 text-left">
+              <p><span class="font-medium">{{ i18n.t('auth.email') }}:</span> {{ user?.email }}</p>
+              <p *ngIf="user?.username"><span class="font-medium">{{ i18n.t('auth.username') }}:</span> {{ user?.username }}</p>
+              <p><span class="font-medium">ID:</span> {{ user?.id }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
