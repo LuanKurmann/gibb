@@ -1,0 +1,21 @@
+{
+  "providers": [],
+  "buildImage": "node:22.12.0-alpine",
+  "phases": {
+    "setup": {
+      "nixPkgs": ["nodejs_22"],
+      "nixLibs": [],
+      "nixOverlays": [],
+      "nixpkgsArchive": "ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7"
+    },
+    "install": {
+      "cmd": "npm ci"
+    },
+    "build": {
+      "cmd": "npm run build"
+    }
+  },
+  "start": {
+    "cmd": "npx http-server dist/angular-auth-app -p $PORT -c-1"
+  }
+}
