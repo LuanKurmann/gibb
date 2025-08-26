@@ -40,7 +40,6 @@
     "@angular/compiler-cli": "^20.2.1",
     "@types/jasmine": "~5.1.0",
     "autoprefixer": "^10.4.21",
-    "http-server": "^14.1.1",
     "jasmine-core": "~5.8.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
@@ -52,6 +51,6 @@
     "typescript": "~5.8.2"
   },
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=20.0.0"
   }
 }
