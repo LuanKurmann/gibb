@@ -1,0 +1,252 @@
+<div class="bg-white rounded-lg shadow-md p-6 mb-6">
+  <!-- Subject Header -->
+  <div class="flex justify-between items-center mb-4">
+    <div>
+      <h3 class="text-xl font-semibold text-gray-800">{{ subject.name }}</h3>
+      <p class="text-sm text-gray-600">{{ subject.shortName }}</p>
+      <div class="text-xs text-purple-600 mt-1">
+        Kombinierte IDA-Note aus IDAF und IDPA
+      </div>
+    </div>
+    <div class="flex items-center space-x-4">
+      <div class="text-right">
+        <div class="text-sm text-gray-600">IDA-Note</div>
+        <div class="text-2xl font-bold" [ngClass]="getGradeColorClass(idaGrade)">
+          {{ formatGrade(idaGrade) }}
+        </div>
+      </div>
+      <button 
+        (click)="openAddForm()"
+        class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors">
+        Note hinzufügen
+      </button>
+    </div>
+  </div>
+
+  <!-- IDA Components Summary -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <!-- IDAF Summary -->
+    <div class="bg-blue-50 p-4 rounded-lg">
+      <h4 class="font-medium text-gray-700 mb-2 flex items-center">
+        <span class="w-3 h-3 bg-blue-400 rounded-full mr-2"></span>
+        IDAF (Erfahrungsnote)
+      </h4>
+      <div class="text-xl font-semibold" [ngClass]="getGradeColorClass(idafAverage)">
+        {{ formatGrade(idafAverage) }}
+      </div>
+      <div class="text-sm text-gray-600 mt-1">
+        {{ idafGrades.length }} Noten • Zählt nicht zur Promotion
+      </div>
+    </div>
+
+    <!-- IDPA Summary -->
+    <div class="bg-green-50 p-4 rounded-lg">
+      <h4 class="font-medium text-gray-700 mb-2 flex items-center">
+        <span class="w-3 h-3 bg-green-400 rounded-full mr-2"></span>
+        IDPA (Projektarbeit)
+      </h4>
+      <div class="text-xl font-semibold" [ngClass]="getGradeColorClass(idpaGrade)">
+        {{ formatGrade(idpaGrade) }}
+      </div>
+      <div class="text-sm text-gray-600 mt-1">
+        {{ hasIdpaGrade ? '1 Projektnote' : 'Keine Note erfasst' }}
+      </div>
+    </div>
+  </div>
+
+  <!-- IDA Calculation Info -->
+  <div class="bg-purple-50 p-4 rounded-lg mb-6">
+    <h4 class="font-medium text-purple-700 mb-2">IDA-Berechnung</h4>
+    <div class="text-sm text-gray-700">
+      <div class="flex justify-between items-center">
+        <span>IDAF (Erfahrungsnote):</span>
+        <span class="font-medium" [ngClass]="getGradeColorClass(idafAverage)">{{ formatGrade(idafAverage) }}</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span>IDPA (Projektarbeit):</span>
+        <span class="font-medium" [ngClass]="getGradeColorClass(idpaGrade)">{{ formatGrade(idpaGrade) }}</span>
+      </div>
+      <hr class="my-2 border-purple-200">
+      <div class="flex justify-between items-center font-semibold">
+        <span>IDA-Note (Durchschnitt):</span>
+        <span class="text-lg" [ngClass]="getGradeColorClass(idaGrade)">{{ formatGrade(idaGrade) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- IDAF Semester Details -->
+  <div class="mb-6" *ngIf="hasIdafGrades">
+    <h4 class="font-medium text-gray-700 mb-3 flex items-center">
+      <span class="w-3 h-3 bg-blue-400 rounded-full mr-2"></span>
+      IDAF Semesterdurchschnitte
+    </h4>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div *ngFor="let semAvg of getIdafSemesterAverages()" class="bg-blue-50 p-3 rounded-lg text-center">
+        <div class="text-sm text-gray-600">{{ semAvg.semester }}. Semester</div>
+        <div class="text-lg font-semibold" [ngClass]="getGradeColorClass(semAvg.average)">
+          {{ formatGrade(semAvg.average) }}
+        </div>
+        <div class="text-xs text-gray-500">{{ semAvg.count }} Noten</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IDAF Grades List -->
+  <div class="mb-6" *ngIf="hasIdafGrades">
+    <h4 class="font-medium text-gray-700 mb-3 flex items-center">
+      <span class="w-3 h-3 bg-blue-400 rounded-full mr-2"></span>
+      IDAF Einzelnoten
+    </h4>
+    <div class="space-y-2">
+      <div *ngFor="let grade of idafGrades" 
+           class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+        <div class="flex-1">
+          <div class="font-medium">{{ grade.name || 'IDAF Erfahrungsnote' }}</div>
+          <div class="text-sm text-gray-600">
+            {{ grade.semester }}. Semester
+            <span *ngIf="grade.weight && grade.weight !== 1"> • Gewichtung: {{ grade.weight }}</span>
+            <span *ngIf="grade.dateTaken"> • {{ grade.dateTaken | date:'dd.MM.yyyy' }}</span>
+          </div>
+        </div>
+        <div class="flex items-center space-x-3">
+          <span class="text-lg font-semibold" [ngClass]="getGradeColorClass(grade.value)">
+            {{ formatGrade(grade.value) }}
+          </span>
+          <button 
+            (click)="deleteGrade(grade.id!)"
+            class="text-red-500 hover:text-red-700 p-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IDPA Grade Display -->
+  <div class="mb-6" *ngIf="hasIdpaGrade">
+    <h4 class="font-medium text-gray-700 mb-3 flex items-center">
+      <span class="w-3 h-3 bg-green-400 rounded-full mr-2"></span>
+      IDPA Projektarbeit
+    </h4>
+    <div *ngFor="let grade of idpaGrades" 
+         class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+      <div class="flex-1">
+        <div class="font-medium">{{ grade.name || 'IDPA Projektarbeit' }}</div>
+        <div class="text-sm text-gray-600">
+          Finale Projektnote
+          <span *ngIf="grade.dateTaken"> • {{ grade.dateTaken | date:'dd.MM.yyyy' }}</span>
+        </div>
+      </div>
+      <div class="flex items-center space-x-3">
+        <span class="text-lg font-semibold" [ngClass]="getGradeColorClass(grade.value)">
+          {{ formatGrade(grade.value) }}
+        </span>
+        <button 
+          (click)="deleteGrade(grade.id!)"
+          class="text-red-500 hover:text-red-700 p-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State Messages -->
+  <div *ngIf="!hasIdafGrades && !hasIdpaGrade" class="text-center py-8 text-gray-500">
+    <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+    </svg>
+    <p class="text-lg font-medium mb-2">Noch keine IDA-Noten erfasst</p>
+    <p class="text-sm">Fügen Sie IDAF- und IDPA-Noten hinzu, um die IDA-Note zu berechnen.</p>
+  </div>
+
+  <!-- Add Grade Form -->
+  <div *ngIf="showAddForm" class="mt-6 p-4 bg-purple-50 rounded-lg">
+    <h4 class="font-medium text-gray-700 mb-4">IDA-Note hinzufügen</h4>
+    <form (ngSubmit)="addGrade()" #gradeForm="ngForm">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Subject Selection -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Typ</label>
+          <select [(ngModel)]="selectedSubject" name="selectedSubject" required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+            <option value="idaf">IDAF (Erfahrungsnote)</option>
+            <option value="idpa">IDPA (Projektarbeit)</option>
+          </select>
+          <div class="text-xs text-gray-500 mt-1">
+            {{ getSubjectDescription(selectedSubject) }}
+          </div>
+        </div>
+
+        <!-- Grade Value -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Note</label>
+          <input type="number" [(ngModel)]="gradeValue" name="gradeValue" required
+                 min="1.0" max="6.0" step="0.1"
+                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+
+        <!-- Grade Name -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Bezeichnung</label>
+          <input type="text" [(ngModel)]="gradeName" name="gradeName"
+                 [placeholder]="selectedSubject === 'idaf' ? 'z.B. Fächerübergreifende Arbeit...' : 'z.B. Abschlussprojekt...'"
+                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+
+        <!-- Date -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Datum</label>
+          <input type="date" [(ngModel)]="dateTaken" name="dateTaken"
+                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+
+        <!-- Semester (only for IDAF) -->
+        <div *ngIf="selectedSubject === 'idaf'">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Semester</label>
+          <select [(ngModel)]="semester" name="semester" required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+            <option [value]="1">1. Semester</option>
+            <option [value]="2">2. Semester</option>
+            <option [value]="3">3. Semester</option>
+            <option [value]="4">4. Semester</option>
+          </select>
+        </div>
+
+        <!-- Weight (only for IDAF) -->
+        <div *ngIf="selectedSubject === 'idaf'">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Gewichtung</label>
+          <input type="number" [(ngModel)]="gradeWeight" name="gradeWeight"
+                 min="0.1" max="10" step="0.1"
+                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+      </div>
+
+      <!-- IDPA Warning -->
+      <div *ngIf="selectedSubject === 'idpa' && hasIdpaGrade" class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 text-yellow-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+          </svg>
+          <span class="text-sm text-yellow-800">
+            Für IDPA ist bereits eine Note erfasst. Bitte löschen Sie die bestehende Note zuerst.
+          </span>
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-3 mt-4">
+        <button type="button" (click)="closeAddForm()"
+                class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors">
+          Abbrechen
+        </button>
+        <button type="submit" [disabled]="!gradeForm.valid || (selectedSubject === 'idpa' && hasIdpaGrade)"
+                class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          Note hinzufügen
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

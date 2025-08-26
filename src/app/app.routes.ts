@@ -17,8 +17,23 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   { 
+    path: 'bm-grades', 
+    loadComponent: () => import('./components/bm-grades/bm-grades.component').then(m => m.BMGradesComponent),
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'bm-grades/subject/:id', 
+    loadComponent: () => import('./components/subject-detail/subject-detail.component').then(m => m.SubjectDetailComponent),
+    canActivate: [AuthGuard]
+  },
+  { 
     path: 'settings', 
     loadComponent: () => import('./components/settings/settings.component').then(m => m.SettingsComponent),
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'test-calendar', 
+    loadComponent: () => import('./components/test-calendar/test-calendar.component').then(m => m.TestCalendarComponent),
     canActivate: [AuthGuard]
   },
   { path: '**', redirectTo: '/dashboard' }

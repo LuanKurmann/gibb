@@ -1,0 +1,89 @@
+/* Standard Subject Component Styles */
+
+.grade-input {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+.grade-card {
+  @apply bg-white rounded-lg shadow-md p-6 mb-6;
+}
+
+.grade-summary-item {
+  @apply bg-gray-50 p-4 rounded-lg;
+}
+
+.semester-average-card {
+  @apply bg-blue-50 p-3 rounded-lg text-center;
+}
+
+.grade-item {
+  @apply flex justify-between items-center p-3 bg-gray-50 rounded-lg;
+}
+
+.exam-grade-item {
+  @apply flex justify-between items-center p-3 bg-yellow-50 rounded-lg;
+}
+
+.add-form {
+  @apply mt-6 p-4 bg-blue-50 rounded-lg;
+}
+
+.btn-primary {
+  @apply bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors;
+}
+
+.btn-secondary {
+  @apply px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors;
+}
+
+.btn-danger {
+  @apply text-red-500 hover:text-red-700 p-1;
+}
+
+.form-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+}
+
+.form-actions {
+  @apply flex justify-end space-x-3 mt-4;
+}
+
+/* Grade color utilities */
+.text-grade-good {
+  @apply text-green-600;
+}
+
+.text-grade-bad {
+  @apply text-red-600;
+}
+
+.text-grade-neutral {
+  @apply text-gray-400;
+}
+
+.bg-grade-good {
+  @apply bg-green-100 text-green-800;
+}
+
+.bg-grade-bad {
+  @apply bg-red-100 text-red-800;
+}
+
+.bg-grade-neutral {
+  @apply bg-gray-100 text-gray-600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .grade-summary-grid {
+    @apply grid-cols-1;
+  }
+  
+  .semester-grid {
+    @apply grid-cols-2;
+  }
+  
+  .form-grid {
+    @apply grid-cols-1;
+  }
+}

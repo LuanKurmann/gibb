@@ -1,0 +1,53 @@
+.grade-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.grade-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.semester-section {
+  border-left: 4px solid #e5e7eb;
+}
+
+.semester-section.has-grades {
+  border-left-color: #3b82f6;
+}
+
+.grade-item {
+  transition: background-color 0.2s ease-in-out;
+}
+
+.grade-item:hover {
+  background-color: #f9fafb;
+}
+
+.delete-button {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.grade-item:hover .delete-button {
+  opacity: 1;
+}
+
+.grade-summary-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.grade-summary-card .grade-value {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form-section {
+  background-color: #f8fafc;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-section:last-child {
+  margin-bottom: 0;
+}

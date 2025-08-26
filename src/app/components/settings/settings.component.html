@@ -38,6 +38,60 @@
           </div>
         </div>
 
+        <!-- BM Settings Section -->
+        <div class="px-6 py-4 border-t border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">{{ i18n.t('settings.bmSettings') }}</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">{{ i18n.t('bmGrades.selectType') }}</label>
+              <select [(ngModel)]="selectedBMType" 
+                      class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                <option value="">{{ i18n.t('bmGrades.selectType') }}</option>
+                <option *ngFor="let bmType of bmTypes" [value]="bmType.id">
+                  {{ bmType.name }}
+                </option>
+              </select>
+            </div>
+            
+            <div *ngIf="selectedBMType">
+              <label class="block text-sm font-medium text-gray-700 mb-2">{{ i18n.t('bmGrades.studyMode') }}</label>
+              <select [(ngModel)]="studyMode" 
+                      class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                <option value="fulltime">{{ i18n.t('bmGrades.fulltime') }}</option>
+                <option value="parttime">{{ i18n.t('bmGrades.parttime') }}</option>
+              </select>
+            </div>
+            
+            <!-- Save Button -->
+            <div *ngIf="selectedBMType" class="pt-4">
+              <button 
+                (click)="saveBMSettings()"
+                [disabled]="isSaving"
+                class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                <svg *ngIf="isSaving" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {{ isSaving ? 'Speichern...' : 'Einstellungen speichern' }}
+              </button>
+            </div>
+            
+            <!-- Save Message -->
+            <div *ngIf="saveMessage" class="mt-3 p-3 rounded-md" 
+                 [class]="saveMessageType === 'success' ? 'bg-green-50 border border-green-200 text-green-800' : 'bg-red-50 border border-red-200 text-red-800'">
+              <div class="flex items-center">
+                <svg *ngIf="saveMessageType === 'success'" class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                <svg *ngIf="saveMessageType === 'error'" class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="text-sm font-medium">{{ saveMessage }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Language Settings Section -->
         <div class="px-6 py-4 border-t border-gray-200">
           <h3 class="text-lg font-medium text-gray-900 mb-4">{{ i18n.t('settings.language') }}</h3>

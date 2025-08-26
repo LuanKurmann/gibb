@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "Auth App",
-    "welcome": "Welcome"
+    "welcome": "Welcome",
+    "description": "BM Grade Management - Manage your Vocational Baccalaureate grades"
   },
   "auth": {
     "login": "Login",
@@ -33,6 +34,68 @@
   },
   "navigation": {
     "home": "Home",
+    "dashboard": "Dashboard",
+    "bmGrades": "BM Grades",
     "settings": "Settings"
+  },
+  "bmGrades": {
+    "title": "BM Grades",
+    "bmType": "BM Type",
+    "studyMode": "Study Mode",
+    "fulltime": "Full-time",
+    "parttime": "Part-time",
+    "overallGrade": "Overall Grade",
+    "experienceGrade": "Experience Grade",
+    "examGrade": "Exam Grade",
+    "finalGrade": "Final Grade",
+    "semesterGrade": "Semester Grade",
+    "semesterGrades": "Semester Grades",
+    "semester": "Semester",
+    "subject": "Subject",
+    "subjects": "Subjects",
+    "subjectGrades": "Subject Grades",
+    "gradeType": "Grade Type",
+    "gradeValue": "Grade Value",
+    "addGrade": "Add Grade",
+    "saveGrade": "Save Grade",
+    "selectSubject": "Select Subject",
+    "noExam": "No Exam",
+    "passed": "Passed",
+    "failed": "Failed",
+    "passingRequirements": "Passing Requirements",
+    "passingIssues": "Passing Issues",
+    "configureSettings": "Please configure your BM settings first in the settings.",
+    "goToSettings": "Go to Settings",
+    "gradeSummary": "Grade Summary",
+    "individualGrade": "Individual Grade",
+    "gradeName": "Grade Name",
+    "gradeNamePlaceholder": "e.g. Test, Project, Assignment",
+    "weight": "Weight",
+    "date": "Date",
+    "noGrades": "No grades available",
+    "unnamed": "Unnamed",
+    "confirmDelete": "Are you sure you want to delete this grade?",
+    "noExamGrade": "No exam grade available",
+    "finalExam": "Final Exam",
+    "subjectsWithGrades": "Subjects with Grades",
+    "passingStatus": "Passing Status",
+    "specialSubject": "Special Subject",
+    "specialSubjectInfo": "This subject has special grading rules for project work",
+    "projectGrade": "Project Work",
+    "projectName": "Project Name",
+    "projectNamePlaceholder": "e.g. IDPA Final Project",
+    "projectDescription": "Project Description",
+    "projectDescriptionPlaceholder": "Brief description of the project",
+    "projectDuration": "Project Duration",
+    "projectDurationPlaceholder": "e.g. 3 months, 1 semester",
+    "projects": "Projects",
+    "noProjects": "No projects available"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back"
   }
 }
