@@ -45,6 +45,7 @@
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">{{ i18n.t('bmGrades.selectType') }}</label>
               <select [(ngModel)]="selectedBMType" 
+                      (ngModelChange)="onBMTypeChange()"
                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
                 <option value="">{{ i18n.t('bmGrades.selectType') }}</option>
                 <option *ngFor="let bmType of bmTypes" [value]="bmType.id">
@@ -56,6 +57,7 @@
             <div *ngIf="selectedBMType">
               <label class="block text-sm font-medium text-gray-700 mb-2">{{ i18n.t('bmGrades.studyMode') }}</label>
               <select [(ngModel)]="studyMode" 
+                      (ngModelChange)="onStudyModeChange()"
                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
                 <option value="fulltime">{{ i18n.t('bmGrades.fulltime') }}</option>
                 <option value="parttime">{{ i18n.t('bmGrades.parttime') }}</option>
@@ -65,7 +67,7 @@
             <!-- Save Button -->
             <div *ngIf="selectedBMType" class="pt-4">
               <button 
-                (click)="saveBMSettings()"
+                (click)="checkForChangesAndSave()"
                 [disabled]="isSaving"
                 class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed">
                 <svg *ngIf="isSaving" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -153,6 +155,48 @@
             {{ i18n.t('settings.logout') }}
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BM Type Change Confirmation Modal -->
+<div *ngIf="showBMTypeChangeConfirm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+    <div class="p-6">
+      <div class="flex items-center mb-4">
+        <div class="flex-shrink-0">
+          <svg class="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-lg font-medium text-gray-900">BM-Typ ändern</h3>
+        </div>
+      </div>
+      
+      <div class="mb-6">
+        <p class="text-sm text-gray-700 mb-4">
+          <strong>Achtung:</strong> Wenn Sie den BM-Typ ändern, werden alle Ihre gespeicherten Tests automatisch gelöscht, da sie möglicherweise nicht mehr zu den neuen Fächern passen.
+        </p>
+        <p class="text-sm text-gray-600">
+          Möchten Sie wirklich fortfahren und alle Tests löschen?
+        </p>
+      </div>
+      
+      <div class="flex space-x-3">
+        <button
+          (click)="cancelBMTypeChange()"
+          class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          Abbrechen
+        </button>
+        <button
+          (click)="confirmBMTypeChange()"
+          class="flex-1 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+        >
+          Ja, Tests löschen
+        </button>
       </div>
     </div>
   </div>

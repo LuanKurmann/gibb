@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { SupabaseService, AuthUser } from '../../services/supabase.service';
 import { I18nService, SupportedLanguage } from '../../services/i18n.service';
+import { TestCalendarService } from '../../services/test-calendar.service';
 
 export interface BMType {
   id: string;
@@ -43,11 +44,17 @@ export class SettingsComponent implements OnInit {
   // BM Settings
   selectedBMType: string = '';
   studyMode: 'fulltime' | 'parttime' = 'fulltime';
+  previousBMType: string = '';
   
   // Save state
   isSaving = false;
   saveMessage = '';
   saveMessageType: 'success' | 'error' | '' = '';
+  
+  // BM Type Change Confirmation
+  showBMTypeChangeConfirm = false;
+  pendingBMType = '';
+  pendingStudyMode: 'fulltime' | 'parttime' = 'fulltime';
   
   bmTypes: BMType[] = [
     {
@@ -131,7 +138,8 @@ export class SettingsComponent implements OnInit {
   constructor(
     private supabaseService: SupabaseService,
     private router: Router,
-    public i18n: I18nService
+    public i18n: I18nService,
+    private testCalendarService: TestCalendarService
   ) {}
 
   ngOnInit() {
@@ -181,10 +189,54 @@ export class SettingsComponent implements OnInit {
       if (data && !error) {
         this.selectedBMType = data.bm_type || '';
         this.studyMode = data.study_mode || 'fulltime';
+        this.previousBMType = this.selectedBMType;
       }
     } catch (error) {
       console.error('Error loading BM settings:', error);
     }
+  }
+
+  onBMTypeChange() {
+    // Check if BM type has actually changed and there was a previous type
+    if (this.selectedBMType !== this.previousBMType && this.previousBMType) {
+      this.pendingBMType = this.selectedBMType;
+      this.pendingStudyMode = this.studyMode;
+      this.showBMTypeChangeConfirm = true;
+      // Reset to previous value until confirmed
+      this.selectedBMType = this.previousBMType;
+    }
+  }
+
+  onStudyModeChange() {
+    // Study mode changes don't require confirmation, but we track them
+    // The actual save will happen when the user clicks the save button
+  }
+
+  checkForChangesAndSave() {
+    // Check if BM type has changed and show confirmation if needed
+    if (this.selectedBMType !== this.previousBMType && this.previousBMType) {
+      this.pendingBMType = this.selectedBMType;
+      this.pendingStudyMode = this.studyMode;
+      this.showBMTypeChangeConfirm = true;
+      // Reset to previous value until confirmed
+      this.selectedBMType = this.previousBMType;
+    } else {
+      // No BM type change, save directly
+      this.saveBMSettings();
+    }
+  }
+
+  confirmBMTypeChange() {
+    this.selectedBMType = this.pendingBMType;
+    this.studyMode = this.pendingStudyMode;
+    this.showBMTypeChangeConfirm = false;
+    this.saveBMSettings();
+  }
+
+  cancelBMTypeChange() {
+    this.showBMTypeChangeConfirm = false;
+    this.pendingBMType = '';
+    this.pendingStudyMode = 'fulltime';
   }
 
   async saveBMSettings() {
@@ -198,6 +250,12 @@ export class SettingsComponent implements OnInit {
     this.saveMessage = '';
 
     try {
+      // If BM type changed, delete all tests first
+      if (this.selectedBMType !== this.previousBMType && this.previousBMType) {
+        console.log('BM type changed from', this.previousBMType, 'to', this.selectedBMType, '- deleting all tests');
+        await this.deleteAllTests();
+      }
+
       const { error } = await this.supabaseService.client
         .from('bm_settings')
         .upsert({
@@ -209,6 +267,7 @@ export class SettingsComponent implements OnInit {
         });
 
       if (!error) {
+        this.previousBMType = this.selectedBMType;
         this.showSaveMessage('Einstellungen erfolgreich gespeichert!', 'success');
       } else {
         console.error('Supabase error:', error);
@@ -219,6 +278,28 @@ export class SettingsComponent implements OnInit {
       this.showSaveMessage('Fehler beim Speichern der Einstellungen.', 'error');
     } finally {
       this.isSaving = false;
+    }
+  }
+
+  private async deleteAllTests() {
+    const user = this.supabaseService.getCurrentUser();
+    if (!user) return;
+
+    try {
+      console.log('Deleting all tests for user:', user.id);
+      const { data, error } = await this.supabaseService.client
+        .from('scheduled_tests')
+        .delete()
+        .eq('user_id', user.id)
+        .select();
+
+      if (error) {
+        console.error('Error deleting tests:', error);
+      } else {
+        console.log('Successfully deleted tests:', data);
+      }
+    } catch (error) {
+      console.error('Error deleting tests:', error);
     }
   }
 

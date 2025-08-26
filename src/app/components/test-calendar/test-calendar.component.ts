@@ -5,11 +5,12 @@ import { TestCalendarService } from '../../services/test-calendar.service';
 import { I18nService } from '../../services/i18n.service';
 import { BMCalculationService } from '../../services/bm-calculation.service';
 import { ScheduledTest, TestType, TestStatus, BaseSubject } from '../../models/bm-domain.models';
+import { PageLayoutComponent } from '../shared/layout/page-layout.component';
 
 @Component({
   selector: 'app-test-calendar',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PageLayoutComponent],
   templateUrl: './test-calendar.component.html',
   styleUrls: ['./test-calendar.component.css']
 })

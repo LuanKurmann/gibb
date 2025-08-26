@@ -1,99 +1,189 @@
-<div class="space-y-6">
-  <!-- Header -->
-  <div class="flex justify-between items-center">
-    <h2 class="text-2xl font-bold text-gray-900">Test-Verwaltung</h2>
-    <button (click)="openAddTestModal()" 
-            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-      </svg>
-      <span>Test hinzufügen</span>
-    </button>
-  </div>
-
-  <!-- Filters and Sort -->
-  <div class="bg-white rounded-lg shadow p-4">
-    <div class="flex space-x-4">
-      <div class="flex-1">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Status:</label>
-        <select [(ngModel)]="filterStatus" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-          <option value="all">Alle</option>
-          <option value="scheduled">Geplant</option>
-          <option value="completed">Abgeschlossen</option>
-          <option value="cancelled">Abgesagt</option>
-        </select>
-      </div>
-      
-      <div class="flex-1">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Fach:</label>
-        <select [(ngModel)]="filterSubject" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-          <option value="">Alle Fächer</option>
-          <option *ngFor="let subject of subjects" [value]="subject.id">
-            {{ subject.name }}
-          </option>
-        </select>
+<app-page-layout title="Test-Verwaltung" subtitle="Verwalte deine anstehenden Tests und Prüfungen">
+  <div class="space-y-6">
+    <!-- Quick Action Header -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900">Aktionen</h3>
+          <p class="text-gray-600 mt-1">Schnelle Aktionen für deine Tests</p>
+        </div>
+        <button (click)="openAddTestModal()" 
+                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-2 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+          <span class="hidden sm:inline">Test hinzufügen</span>
+          <span class="sm:hidden">Hinzufügen</span>
+        </button>
       </div>
     </div>
-  </div>
 
-  <!-- Test List Table -->
-  <div class="bg-white rounded-lg shadow overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th (click)="toggleSort('date')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
-              Datum {{ getSortIcon('date') }}
-            </th>
-            <th (click)="toggleSort('subject')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
-              Fach {{ getSortIcon('subject') }}
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titel</th>
-            <th (click)="toggleSort('type')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
-              Typ {{ getSortIcon('type') }}
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktionen</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <tr *ngFor="let test of getFilteredAndSortedTests()" 
-              class="hover:bg-gray-50"
-              [class.bg-red-50]="isOverdue(test)"
-              [class.bg-blue-50]="isToday(test)"
-              [class.bg-green-50]="test.status === TestStatus.COMPLETED">
-            
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm font-medium text-gray-900">{{ formatDate(test.scheduledDate) }}</div>
-              <div class="text-sm text-gray-500">{{ formatTime(test.scheduledDate) }}</div>
-              <div *ngIf="test.status === TestStatus.SCHEDULED" class="text-xs mt-1">
-                <span *ngIf="getDaysUntilTest(test) === 0" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Heute</span>
-                <span *ngIf="getDaysUntilTest(test) === 1" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Morgen</span>
-                <span *ngIf="getDaysUntilTest(test) > 1" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                  in {{ getDaysUntilTest(test) }} Tagen
-                </span>
-                <span *ngIf="getDaysUntilTest(test) < 0" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                  {{ getDaysUntilTest(test) * -1 }} Tage überfällig
-                </span>
-              </div>
-            </td>
-            
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              {{ getSubjectName(test.subjectId) }}
-            </td>
-            
-            <td class="px-6 py-4">
-              <div class="text-sm font-medium text-gray-900">{{ test.title }}</div>
-              <div *ngIf="test.description" class="text-sm text-gray-500">{{ test.description }}</div>
-            </td>
-            
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white" [style.background-color]="getTestTypeColor(test.testType)">
-                {{ formatTestType(test.testType) }}
+<!-- Filters and Sort -->
+<div class="bg-white rounded-lg shadow p-6 mb-6">
+  <h3 class="text-lg font-semibold text-gray-900 mb-4">Filter & Sortierung</h3>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+      <select [(ngModel)]="filterStatus" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+        <option value="all">Alle Status</option>
+        <option value="scheduled">Geplant</option>
+        <option value="completed">Abgeschlossen</option>
+        <option value="cancelled">Abgesagt</option>
+      </select>
+    </div>
+    
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Fach</label>
+      <select [(ngModel)]="filterSubject" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+        <option value="">Alle Fächer</option>
+        <option *ngFor="let subject of subjects" [value]="subject.id">
+          {{ subject.name }}
+        </option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- Test List -->
+<div class="bg-white rounded-lg shadow">
+  <div class="px-6 py-4 border-b border-gray-200">
+    <h3 class="text-lg font-semibold text-gray-900">Deine Tests</h3>
+  </div>
+  
+  <!-- Desktop Table View -->
+  <div class="hidden lg:block overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th (click)="toggleSort('date')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors">
+            <div class="flex items-center space-x-1">
+              <span>Datum</span>
+              <span class="text-gray-400">{{ getSortIcon('date') }}</span>
+            </div>
+          </th>
+          <th (click)="toggleSort('subject')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors">
+            <div class="flex items-center space-x-1">
+              <span>Fach</span>
+              <span class="text-gray-400">{{ getSortIcon('subject') }}</span>
+            </div>
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titel</th>
+          <th (click)="toggleSort('type')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors">
+            <div class="flex items-center space-x-1">
+              <span>Typ</span>
+              <span class="text-gray-400">{{ getSortIcon('type') }}</span>
+            </div>
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aktionen</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <tr *ngFor="let test of getFilteredAndSortedTests()" 
+            class="hover:bg-gray-50 transition-colors"
+            [class.bg-red-50]="isOverdue(test)"
+            [class.bg-blue-50]="isToday(test)"
+            [class.bg-green-50]="test.status === TestStatus.COMPLETED">
+          
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm font-medium text-gray-900">{{ formatDate(test.scheduledDate) }}</div>
+            <div class="text-sm text-gray-500">{{ formatTime(test.scheduledDate) }}</div>
+            <div *ngIf="test.status === TestStatus.SCHEDULED" class="text-xs mt-1">
+              <span *ngIf="getDaysUntilTest(test) === 0" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Heute</span>
+              <span *ngIf="getDaysUntilTest(test) === 1" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Morgen</span>
+              <span *ngIf="getDaysUntilTest(test) > 1" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                in {{ getDaysUntilTest(test) }} Tagen
               </span>
-            </td>
+              <span *ngIf="getDaysUntilTest(test) < 0" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                {{ getDaysUntilTest(test) * -1 }} Tage überfällig
+              </span>
+            </div>
+          </td>
+          
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            {{ getSubjectName(test.subjectId) }}
+          </td>
+          
+          <td class="px-6 py-4">
+            <div class="text-sm font-medium text-gray-900">{{ test.title }}</div>
+            <div *ngIf="test.description" class="text-sm text-gray-500">{{ test.description }}</div>
+          </td>
+          
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white" [style.background-color]="getTestTypeColor(test.testType)">
+              {{ formatTestType(test.testType) }}
+            </span>
+          </td>
+          
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                  [class.bg-yellow-100]="test.status === TestStatus.SCHEDULED"
+                  [class.text-yellow-800]="test.status === TestStatus.SCHEDULED"
+                  [class.bg-green-100]="test.status === TestStatus.COMPLETED"
+                  [class.text-green-800]="test.status === TestStatus.COMPLETED"
+                  [class.bg-red-100]="test.status === TestStatus.CANCELLED"
+                  [class.text-red-800]="test.status === TestStatus.CANCELLED">
+              {{ test.status === TestStatus.SCHEDULED ? 'Geplant' : 
+                 test.status === TestStatus.COMPLETED ? 'Abgeschlossen' : 'Abgesagt' }}
+            </span>
+          </td>
+          
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <div class="flex space-x-2">
+              <button *ngIf="test.status === TestStatus.SCHEDULED" 
+                      (click)="openConvertModal(test)" 
+                      class="text-green-600 hover:text-green-900 transition-colors">
+                Note eintragen
+              </button>
+              <button (click)="deleteTest(test)" class="text-red-600 hover:text-red-900 transition-colors">
+                Löschen
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- Mobile Card View -->
+  <div class="lg:hidden divide-y divide-gray-200">
+    <div *ngFor="let test of getFilteredAndSortedTests()" 
+         class="p-6 hover:bg-gray-50 transition-colors"
+         [class.bg-red-50]="isOverdue(test)"
+         [class.bg-blue-50]="isToday(test)"
+         [class.bg-green-50]="test.status === TestStatus.COMPLETED">
+      
+      <div class="flex items-start justify-between">
+        <div class="flex-1">
+          <div class="flex items-center space-x-3 mb-2">
+            <h4 class="text-lg font-medium text-gray-900">{{ test.title }}</h4>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white" [style.background-color]="getTestTypeColor(test.testType)">
+              {{ formatTestType(test.testType) }}
+            </span>
+          </div>
+          
+          <div class="space-y-2">
+            <div class="flex items-center text-sm text-gray-600">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253z"/>
+              </svg>
+              {{ getSubjectName(test.subjectId) }}
+            </div>
             
-            <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center text-sm text-gray-600">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              {{ formatDate(test.scheduledDate) }} um {{ formatTime(test.scheduledDate) }}
+            </div>
+            
+            <div *ngIf="test.description" class="text-sm text-gray-500">
+              {{ test.description }}
+            </div>
+          </div>
+          
+          <div class="flex items-center justify-between mt-4">
+            <div class="flex items-center space-x-3">
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                     [class.bg-yellow-100]="test.status === TestStatus.SCHEDULED"
                     [class.text-yellow-800]="test.status === TestStatus.SCHEDULED"
@@ -104,154 +194,212 @@
                 {{ test.status === TestStatus.SCHEDULED ? 'Geplant' : 
                    test.status === TestStatus.COMPLETED ? 'Abgeschlossen' : 'Abgesagt' }}
               </span>
-            </td>
-            
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-              <div class="flex space-x-2">
-                <button *ngIf="test.status === TestStatus.SCHEDULED" 
-                        (click)="openConvertModal(test)" 
-                        class="text-green-600 hover:text-green-900">
-                  Note eintragen
-                </button>
-                <button (click)="deleteTest(test)" class="text-red-600 hover:text-red-900">
-                  Löschen
-                </button>
+              
+              <div *ngIf="test.status === TestStatus.SCHEDULED" class="text-xs">
+                <span *ngIf="getDaysUntilTest(test) === 0" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Heute</span>
+                <span *ngIf="getDaysUntilTest(test) === 1" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Morgen</span>
+                <span *ngIf="getDaysUntilTest(test) > 1" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  in {{ getDaysUntilTest(test) }} Tagen
+                </span>
+                <span *ngIf="getDaysUntilTest(test) < 0" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                  {{ getDaysUntilTest(test) * -1 }} Tage überfällig
+                </span>
               </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      
-      <!-- Empty State -->
-      <div *ngIf="getFilteredAndSortedTests().length === 0" class="text-center py-12">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-        </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-900">Keine Tests gefunden</h3>
-        <p class="mt-1 text-sm text-gray-500">Füge deinen ersten Test hinzu oder ändere die Filter.</p>
+            </div>
+            
+            <div class="flex space-x-2">
+              <button *ngIf="test.status === TestStatus.SCHEDULED" 
+                      (click)="openConvertModal(test)" 
+                      class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors">
+                Note eintragen
+              </button>
+              <button (click)="deleteTest(test)" 
+                      class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors">
+                Löschen
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
+    </div>
+  </div>
+  
+  <!-- Empty State -->
+  <div *ngIf="getFilteredAndSortedTests().length === 0" class="text-center py-12">
+    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+    </svg>
+    <h3 class="mt-2 text-sm font-medium text-gray-900">Keine Tests gefunden</h3>
+    <p class="mt-1 text-sm text-gray-500">Füge deinen ersten Test hinzu oder ändere die Filter.</p>
+    <button (click)="openAddTestModal()" 
+            class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+      Ersten Test hinzufügen
+    </button>
+  </div>
+</div>
+  </div>
+</app-page-layout>
+
+<!-- Add Test Modal -->
+<div *ngIf="showAddTestModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    <div class="p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-semibold text-gray-900">Test hinzufügen</h3>
+        <button (click)="closeAddTestModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      
+      <form (ngSubmit)="addTest()" class="space-y-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Fach *</label>
+          <select [(ngModel)]="newTest.subjectId" name="subjectId" required
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+            <option value="">Fach auswählen</option>
+            <option *ngFor="let subject of subjects" [value]="subject.id">
+              {{ subject.name }}
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Titel *</label>
+          <input type="text" [(ngModel)]="newTest.title" name="title" required
+                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                 placeholder="z.B. Mathematik Test Kapitel 5">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Beschreibung</label>
+          <textarea [(ngModel)]="newTest.description" name="description" rows="3"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                    placeholder="Zusätzliche Informationen zum Test..."></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Typ</label>
+            <select [(ngModel)]="newTest.testType" name="testType"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              <option [value]="TestType.TEST">Test</option>
+              <option [value]="TestType.EXAM">Prüfung</option>
+              <option [value]="TestType.PRESENTATION">Präsentation</option>
+              <option [value]="TestType.PROJECT">Projekt</option>
+              <option [value]="TestType.HOMEWORK">Hausaufgabe</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Semester</label>
+            <select [(ngModel)]="newTest.semester" name="semester"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              <option [value]="1">1. Semester</option>
+              <option [value]="2">2. Semester</option>
+              <option [value]="3">3. Semester</option>
+              <option [value]="4">4. Semester</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Datum & Zeit *</label>
+          <input type="datetime-local" [(ngModel)]="newTest.scheduledDate" name="scheduledDate" required
+                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Dauer (Minuten)</label>
+            <input type="number" [(ngModel)]="newTest.duration" name="duration" min="15" max="300" placeholder="90"
+                   class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+            <p class="text-xs text-gray-500 mt-1">Optional: Dauer des Tests</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Gewichtung</label>
+            <input type="number" [(ngModel)]="newTest.weight" name="weight" min="0.1" max="3" step="0.1" placeholder="1.0"
+                   class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+            <p class="text-xs text-gray-500 mt-1">Gewichtung für Notenberechnung</p>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3 pt-6 border-t border-gray-200">
+          <button type="button" (click)="closeAddTestModal()" 
+                  class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors">
+            Abbrechen
+          </button>
+          <button type="submit" 
+                  class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors font-medium">
+            Test hinzufügen
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
 
-<!-- Add Test Modal -->
-<div *ngIf="showAddTestModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-  <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-    <h3 class="text-lg font-semibold mb-4">Test hinzufügen</h3>
-    
-    <form (ngSubmit)="addTest()" class="space-y-4">
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Fach</label>
-        <select [(ngModel)]="newTest.subjectId" name="subjectId" required
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-          <option value="">Fach auswählen</option>
-          <option *ngFor="let subject of subjects" [value]="subject.id">
-            {{ subject.name }}
-          </option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Titel</label>
-        <input type="text" [(ngModel)]="newTest.title" name="title" required
-               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-               placeholder="z.B. Mathematik Test Kapitel 5">
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Beschreibung</label>
-        <textarea [(ngModel)]="newTest.description" name="description" rows="2"
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Zusätzliche Informationen..."></textarea>
-      </div>
-
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Typ</label>
-          <select [(ngModel)]="newTest.testType" name="testType"
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-            <option [value]="TestType.TEST">Test</option>
-            <option [value]="TestType.EXAM">Prüfung</option>
-            <option [value]="TestType.PRESENTATION">Präsentation</option>
-            <option [value]="TestType.PROJECT">Projekt</option>
-            <option [value]="TestType.HOMEWORK">Hausaufgabe</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Semester</label>
-          <select [(ngModel)]="newTest.semester" name="semester"
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-            <option [value]="1">1. Semester</option>
-            <option [value]="2">2. Semester</option>
-            <option [value]="3">3. Semester</option>
-            <option [value]="4">4. Semester</option>
-          </select>
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Datum & Zeit</label>
-        <input type="datetime-local" [(ngModel)]="newTest.scheduledDate" name="scheduledDate" required
-               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-      </div>
-
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Dauer (Min.)</label>
-          <input type="number" [(ngModel)]="newTest.duration" name="duration" min="15" max="300"
-                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Gewichtung</label>
-          <input type="number" [(ngModel)]="newTest.weight" name="weight" min="0.1" max="3" step="0.1"
-                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-        </div>
-      </div>
-
-      <div class="flex justify-end space-x-3 pt-4">
-        <button type="button" (click)="closeAddTestModal()" 
-                class="px-4 py-2 text-gray-600 hover:text-gray-800">
-          Abbrechen
-        </button>
-        <button type="submit" 
-                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-          Test hinzufügen
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <!-- Convert to Grade Modal -->
-<div *ngIf="showConvertModal && selectedTest" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-  <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-    <h3 class="text-lg font-semibold mb-4">Note eintragen</h3>
-    
-    <div class="space-y-4">
-      <div class="bg-gray-50 p-3 rounded-lg">
-        <div class="font-medium">{{ selectedTest.title }}</div>
-        <div class="text-sm text-gray-600">{{ getSubjectName(selectedTest.subjectId) }}</div>
-        <div class="text-sm text-gray-600">{{ formatDate(selectedTest.scheduledDate) }}</div>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Note (1.0 - 6.0)</label>
-        <input type="number" [(ngModel)]="convertGradeValue" min="1" max="6" step="0.5"
-               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-      </div>
-
-      <div class="flex justify-end space-x-3 pt-4">
-        <button type="button" (click)="closeConvertModal()" 
-                class="px-4 py-2 text-gray-600 hover:text-gray-800">
-          Abbrechen
+<div *ngIf="showConvertModal && selectedTest" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+    <div class="p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-semibold text-gray-900">Note eintragen</h3>
+        <button (click)="closeConvertModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
         </button>
-        <button (click)="convertToGrade()" 
-                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
-          Note speichern
-        </button>
+      </div>
+      
+      <div class="space-y-6">
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div class="flex items-start space-x-3">
+            <div class="flex-shrink-0">
+              <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h4 class="font-medium text-gray-900">{{ selectedTest.title }}</h4>
+              <div class="mt-1 space-y-1">
+                <div class="flex items-center text-sm text-gray-600">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253z"/>
+                  </svg>
+                  {{ getSubjectName(selectedTest.subjectId) }}
+                </div>
+                <div class="flex items-center text-sm text-gray-600">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  {{ formatDate(selectedTest.scheduledDate) }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Note (1.0 - 6.0) *</label>
+          <input type="number" [(ngModel)]="convertGradeValue" min="1" max="6" step="0.5" placeholder="4.0"
+                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-lg">
+          <p class="text-xs text-gray-500 mt-1">Schweizer Notensystem: 6.0 = sehr gut, 4.0 = genügend, 1.0 = ungenügend</p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3 pt-6 border-t border-gray-200">
+          <button type="button" (click)="closeConvertModal()" 
+                  class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors">
+            Abbrechen
+          </button>
+          <button (click)="convertToGrade()" 
+                  class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors font-medium">
+            Note speichern
+          </button>
+        </div>
       </div>
     </div>
   </div>
