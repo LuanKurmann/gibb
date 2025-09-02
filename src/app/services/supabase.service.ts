@@ -22,7 +22,7 @@ export class SupabaseService {
   session$ = this.currentSession.asObservable();
 
   constructor() {
-    this.supabase = createClient(environment.supabase.url, environment.supabase.anonKey, {
+    this.supabase = createClient(environment.supabaseUrl, environment.supabaseAnonKey , {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
